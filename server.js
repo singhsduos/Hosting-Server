@@ -38,45 +38,61 @@ const App = require('./app');
 const env_url = config.get('CONFIGURATION.APIURL');
 const front_url = config.get('CONFIGURATION.FRONTBASEURL');
 
-// Initialize Database
-initializeDatabase().catch(err => {
-  logger.error('Failed to initialize database:', err);
-  process.exit(1);
-});
+/**
+ * Initialize the application
+ * @async
+ * @returns {Promise<void>}
+ */
+async function initializeApp() {
+  try {
+    // Initialize Database
+    await initializeDatabase();
+    logger.info('Database initialized successfully');
 
-const app = new App({
-  port: config.get('SECRETCONFIGURATION.PORT') || 20108,
-  middleWares: [
-    accessHeaderMiddleware,
-    morgan('dev', { skip: avoid }),
-    expressLayouts,
-    express.json(),
-    express.urlencoded({ extended: true }),
-    cookie(),
-    cors({
-      origin: getAllowedOrigins(),
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
-    }),
-    session({
-      secret: config.get('SESSION_SECRET') || 'your-secret-key',
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000
-      }
-    })
-  ],
-  controllers: [
-    new BSPController(),
-    new MPaisaController(),
-    new MyCashController()
-  ],
-  errorHandlers: [invalidPath, error]
-});
+    const app = new App({
+      port: config.get('SECRETCONFIGURATION.PORT') || 20108,
+      middleWares: [
+        morgan('dev', { skip: avoid }),
+        expressLayouts,
+        express.json(),
+        express.urlencoded({ extended: true }),
+        cookie(),
+        cors({
+          origin: getAllowedOrigins(),
+          credentials: true,
+          methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+          allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
+        }),
+        accessHeaderMiddleware,
+        session({
+          secret: config.get('SESSION_SECRET') || 'your-secret-key',
+          resave: false,
+          saveUninitialized: false,
+          cookie: {
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000
+          }
+        })
+      ],
+      controllers: [
+        new BSPController(),
+        new MPaisaController(),
+        new MyCashController()
+      ],
+      errorHandlers: [invalidPath, error]
+    });
+
+    await app.listen();
+    logger.info(`Server started successfully in ${process.env.NODE_ENV} mode`);
+  } catch (err) {
+    logger.error('Failed to initialize application:', err);
+    process.exit(1);
+  }
+}
+
+// Start the application
+initializeApp();
 
 // Global error handlers
 process.on('uncaughtException', err => {
@@ -96,8 +112,10 @@ process.on('unhandledRejection', (reason, promise) => {
 process.on('SIGINT', gracefulStopServer);
 process.on('SIGTERM', gracefulStopServer);
 
-app.listen();
-
+/**
+ * Gracefully stop the server
+ * @async
+ */
 async function gracefulStopServer() {
   try {
     logger.info('Initiating graceful shutdown...');
@@ -113,6 +131,12 @@ async function gracefulStopServer() {
   }
 }
 
+/**
+ * Check if response should be avoided for logging
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {boolean} True if response should be avoided
+ */
 function avoid(req, res) {
   return res.statusCode === 304;
 }

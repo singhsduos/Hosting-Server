@@ -1,7 +1,7 @@
-const dbConfig = require('../config/database');
-const MongoUserModel = require('./implementations/MongoUserModel');
-const PostgresUserModel = require('./implementations/PostgresUserModel');
-const UserSchema = require('./schemas/UserSchema');
+const dbConfig = require('../config/database')
+const MongoUserModel = require('./implementations/MongoUserModel')
+const PostgresUserModel = require('./implementations/PostgresUserModel')
+const UserSchema = require('./schemas/UserSchema')
 
 /**
  * Model factory class
@@ -14,17 +14,17 @@ class ModelFactory {
    * @returns {import('./interfaces/Model')} Model instance
    * @throws {Error} If model or database type is not supported
    */
-  static createModel(modelName) {
-    const dbType = dbConfig.activeDb;
-    const schema = ModelFactory._createSchema(modelName);
+  static createModel (modelName) {
+    const dbType = dbConfig.activeDb
+    const schema = ModelFactory._createSchema(modelName)
 
     switch (modelName.toLowerCase()) {
       case 'user':
         return dbType === 'mongodb'
           ? new MongoUserModel(schema)
-          : new PostgresUserModel(schema);
+          : new PostgresUserModel(schema)
       default:
-        throw new Error(`Unsupported model: ${modelName}`);
+        throw new Error(`Unsupported model: ${modelName}`)
     }
   }
 
@@ -35,14 +35,14 @@ class ModelFactory {
    * @returns {import('./interfaces/Schema').Schema} Schema instance
    * @throws {Error} If model is not supported
    */
-  static _createSchema(modelName) {
+  static _createSchema (modelName) {
     switch (modelName.toLowerCase()) {
       case 'user':
-        return new UserSchema();
+        return new UserSchema()
       default:
-        throw new Error(`Unsupported model: ${modelName}`);
+        throw new Error(`Unsupported model: ${modelName}`)
     }
   }
 }
 
-module.exports = ModelFactory;
+module.exports = ModelFactory

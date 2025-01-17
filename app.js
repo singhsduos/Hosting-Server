@@ -3,10 +3,22 @@ const config = require('config');
 const express = require('express');
 const path = require('path');
 
-// Local Modules
-const { dbConnect } = require('./db/mongodb');
+// Local Helpers
+const logger = require('./helpers/logger');
 
-module.exports = class App {
+/**
+ * Express application class
+ * @class App
+ */
+class App {
+  /**
+   * Create Express application
+   * @param {Object} appInit - Application initialization parameters
+   * @param {number} appInit.port - Port number
+   * @param {Function[]} appInit.middleWares - Middleware functions
+   * @param {Object[]} appInit.controllers - Controller instances
+   * @param {Function[]} appInit.errorHandlers - Error handler functions
+   */
   constructor(appInit) {
     if (!appInit || !appInit.port || !appInit.middleWares || !appInit.controllers) {
       throw new Error('Missing required initialization parameters');
@@ -17,19 +29,26 @@ module.exports = class App {
     this.setupApplication(appInit);
   }
 
+  /**
+   * Set up application components
+   * @param {Object} appInit - Application initialization parameters
+   */
   setupApplication(appInit) {
     try {
       this.middleWare(appInit.middleWares);
       this.assets();
       this.routes(appInit.controllers);
       this.errorHandler(appInit.errorHandlers);
-      this.initDatabse();
     } catch (error) {
       logger.error('Error setting up application:', error);
       throw error;
     }
   }
 
+  /**
+   * Set up middleware
+   * @param {Function[]} middleWares - Middleware functions
+   */
   middleWare(middleWares) {
     if (!Array.isArray(middleWares)) {
       throw new Error('Middlewares must be an array');
@@ -44,75 +63,86 @@ module.exports = class App {
     });
   }
 
+  /**
+   * Set up static assets
+   */
   assets() {
     try {
       // Serve static files
       this.app.use(express.static(path.join(__dirname, 'public')));
       
-      // Set up view engine
-      this.app.set('views', path.join(__dirname, 'views'));
-      this.app.set('layout', './layouts/layout');
+      // Set view engine
       this.app.set('view engine', 'ejs');
+      this.app.set('views', path.join(__dirname, 'views'));
+      
+      // Set layout defaults
+      this.app.set('layout', 'layouts/main');
+      this.app.set('layout extractScripts', true);
+      this.app.set('layout extractStyles', true);
     } catch (error) {
       logger.error('Error setting up assets:', error);
       throw error;
     }
   }
 
+  /**
+   * Set up routes
+   * @param {Object[]} controllers - Controller instances
+   */
   routes(controllers) {
     if (!Array.isArray(controllers)) {
       throw new Error('Controllers must be an array');
     }
 
     controllers.forEach(controller => {
-      if (!controller || !controller.path || !controller.router) {
-        logger.warn('Invalid controller configuration:', controller);
-        return;
+      if (controller.router) {
+        this.app.use('/', controller.router);
+      } else {
+        logger.warn('Skipping invalid controller:', controller);
       }
-      this.app.use('/api/v1' + controller.path, controller.router);
     });
   }
 
+  /**
+   * Set up error handlers
+   * @param {Function[]} errorHandlers - Error handler functions
+   */
   errorHandler(errorHandlers) {
     if (!Array.isArray(errorHandlers)) {
       throw new Error('Error handlers must be an array');
     }
 
-    errorHandlers.forEach(errorHandler => {
-      if (typeof errorHandler === 'function') {
-        this.app.use(errorHandler);
+    errorHandlers.forEach(handler => {
+      if (typeof handler === 'function') {
+        this.app.use(handler);
       } else {
-        logger.warn('Skipping invalid error handler:', errorHandler);
+        logger.warn('Skipping invalid error handler:', handler);
       }
     });
   }
 
-  async initDatabse() {
-    try {
-      await dbConnect();
-      logger.info('Database initialized successfully');
-    } catch (error) {
-      logger.error('Database initialization failed:', error);
-      throw error;
-    }
-  }
-
+  /**
+   * Start the server
+   * @returns {Promise<void>}
+   */
   listen() {
-    try {
-      const server = this.app.listen(this.port, () => {
-        logger.info(`App listening on ${config.get('url.site_url')}/api/v1`);
-        logger.info(`NODE_ENV: ${process.env.NODE_ENV}`);
-      });
+    return new Promise((resolve, reject) => {
+      try {
+        const server = this.app.listen(this.port, () => {
+          logger.info(`App listening on port ${this.port}`);
+          resolve(server);
+        });
 
-      server.on('error', (error) => {
-        logger.error('Server error:', error);
-        process.exit(1);
-      });
-
-      return server;
-    } catch (error) {
-      logger.error('Failed to start server:', error);
-      throw error;
-    }
+        server.on('error', (error) => {
+          logger.error('Server error:', error);
+          reject(error);
+        });
+      } catch (error) {
+        logger.error('Error starting server:', error);
+        reject(error);
+      }
+    });
   }
 }
+
+module.exports = App;
