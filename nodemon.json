@@ -1,7 +1,0 @@
-{
-  "verbose": true,
-  "ignore": ["node_modules/*", ".git/*"],
-  "watch": ["*.js", "**/*.js"],
-  "ext": "js,json",
-  "exec": "node server.js"
-}

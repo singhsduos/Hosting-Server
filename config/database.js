@@ -5,23 +5,26 @@ const config = require('config');
  */
 const dbConfig = {
   // Active database type (mongodb or postgres)
-  activeDb: process.env.DB_TYPE || config.get('DB.TYPE') || 'postgres',
+  activeDb: process.env.DB_TYPE || 'postgres',
 
   // MongoDB configuration
   mongodb: {
-    uri: process.env.MONGODB_URI || config.get('DB.MONGODB.URI'),
-    options: config.get('DB.MONGODB.OPTIONS')
+    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/hosting-server',
+    options: {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }
   },
 
   // PostgreSQL configuration
   postgres: {
-    user: process.env.POSTGRES_USER || config.get('DB.POSTGRES.USER'),
-    host: process.env.POSTGRES_HOST || config.get('DB.POSTGRES.HOST'),
-    database: process.env.POSTGRES_DB || config.get('DB.POSTGRES.DATABASE'),
-    password: process.env.POSTGRES_PASSWORD || config.get('DB.POSTGRES.PASSWORD'),
-    port: parseInt(process.env.POSTGRES_PORT || config.get('DB.POSTGRES.PORT')),
-    max: config.get('DB.POSTGRES.MAX'),
-    idleTimeoutMillis: config.get('DB.POSTGRES.IDLE_TIMEOUT')
+    user: process.env.POSTGRES_USER || 'postgres',
+    host: process.env.POSTGRES_HOST || 'localhost',
+    database: process.env.POSTGRES_DB || 'hosting_server',
+    password: process.env.POSTGRES_PASSWORD || 'postgres',
+    port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
+    max: parseInt(process.env.POSTGRES_MAX_CONNECTIONS || '20', 10),
+    idleTimeoutMillis: parseInt(process.env.POSTGRES_IDLE_TIMEOUT || '30000', 10)
   }
 };
 

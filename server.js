@@ -3,7 +3,6 @@ require('dotenv').config();
 require('express-async-errors');
 
 // NPM Modules
-const config = require('config');
 const cookie = require('cookie-parser');
 const cors = require('cors');
 const express = require('express');
@@ -32,10 +31,6 @@ const { error, invalidPath } = require('./middlewares/error-handler');
 // Local Modules
 const App = require('./app');
 
-// Configuration
-const env_url = config.get('CONFIGURATION.APIURL');
-const front_url = config.get('CONFIGURATION.FRONTBASEURL');
-
 /**
  * Initialize the application
  * @async
@@ -48,7 +43,7 @@ async function initializeApp() {
     logger.info('Database initialized successfully');
 
     const app = new App({
-      port: config.get('SECRETCONFIGURATION.PORT') || 20108,
+      port: process.env.PORT || 20108,
       middleWares: [
         morgan('dev', { skip: avoid }),
         expressLayouts,
@@ -63,7 +58,7 @@ async function initializeApp() {
         }),
         accessHeaderMiddleware,
         session({
-          secret: config.get('SESSION_SECRET') || 'your-secret-key',
+          secret: process.env.SESSION_SECRET || 'your-secret-key',
           resave: false,
           saveUninitialized: false,
           cookie: {
@@ -80,7 +75,7 @@ async function initializeApp() {
     });
 
     await app.listen();
-    logger.info(`Server started successfully in ${process.env.NODE_ENV} mode`);
+    logger.info(`Server started successfully in ${process.env.NODE_ENV || 'development'} mode`);
   } catch (err) {
     logger.error('Failed to initialize application:', err);
     process.exit(1);
