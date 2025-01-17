@@ -23,9 +23,7 @@ global.ErrorHandler = ErrorHandler;
 const { initializeDatabase, closeDatabase } = require('./db');
 
 // Controllers
-const { BSPController } = require('./controllers/bsp.controller');
-const { MPaisaController } = require('./controllers/mPaisa.controller');
-const { MyCashController } = require('./controllers/mycash.controller');
+const UserController = require('./controllers/user.controller');
 
 // Middleware
 const { accessHeaderMiddleware, getAllowedOrigins } = require('./middlewares/accessHeader');
@@ -76,9 +74,7 @@ async function initializeApp() {
         })
       ],
       controllers: [
-        new BSPController(),
-        new MPaisaController(),
-        new MyCashController()
+        new UserController()
       ],
       errorHandlers: [invalidPath, error]
     });

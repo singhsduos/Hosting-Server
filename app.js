@@ -70,11 +70,11 @@ class App {
     try {
       // Serve static files
       this.app.use(express.static(path.join(__dirname, 'public')));
-      
+
       // Set view engine
       this.app.set('view engine', 'ejs');
       this.app.set('views', path.join(__dirname, 'views'));
-      
+
       // Set layout defaults
       this.app.set('layout', 'layouts/main');
       this.app.set('layout extractScripts', true);

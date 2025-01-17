@@ -1,28 +1,28 @@
+const config = require('config');
+
 /**
  * Database configuration
- * @type {Object}
  */
-module.exports = {
-  /** @type {string} Active database type */
-  activeDb: process.env.DB_TYPE || 'postgres',
+const dbConfig = {
+  // Active database type (mongodb or postgres)
+  activeDb: process.env.DB_TYPE || config.get('DB.TYPE') || 'postgres',
 
-  /** @type {Object} MongoDB configuration */
+  // MongoDB configuration
   mongodb: {
-    /** @type {string} MongoDB connection URI */
-    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/your_database',
+    uri: process.env.MONGODB_URI || config.get('DB.MONGODB.URI'),
+    options: config.get('DB.MONGODB.OPTIONS')
   },
 
-  /** @type {Object} PostgreSQL configuration */
+  // PostgreSQL configuration
   postgres: {
-    /** @type {string} PostgreSQL user */
-    user: process.env.POSTGRES_USER || 'postgres',
-    /** @type {string} PostgreSQL host */
-    host: process.env.POSTGRES_HOST || 'localhost',
-    /** @type {string} PostgreSQL database name */
-    database: process.env.POSTGRES_DB || 'your_database',
-    /** @type {string} PostgreSQL password */
-    password: process.env.POSTGRES_PASSWORD || 'postgres',
-    /** @type {number} PostgreSQL port */
-    port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
-  },
+    user: process.env.POSTGRES_USER || config.get('DB.POSTGRES.USER'),
+    host: process.env.POSTGRES_HOST || config.get('DB.POSTGRES.HOST'),
+    database: process.env.POSTGRES_DB || config.get('DB.POSTGRES.DATABASE'),
+    password: process.env.POSTGRES_PASSWORD || config.get('DB.POSTGRES.PASSWORD'),
+    port: parseInt(process.env.POSTGRES_PORT || config.get('DB.POSTGRES.PORT')),
+    max: config.get('DB.POSTGRES.MAX'),
+    idleTimeoutMillis: config.get('DB.POSTGRES.IDLE_TIMEOUT')
+  }
 };
+
+module.exports = dbConfig;

@@ -1,6 +1,7 @@
 {
+  "verbose": true,
+  "ignore": ["node_modules/*", ".git/*"],
   "watch": ["*.js", "**/*.js"],
   "ext": "js,json",
-  "ignore": ["node_modules/", "dist/"],
-  "exec": "eslint . --fix && node"
+  "exec": "node server.js"
 }
