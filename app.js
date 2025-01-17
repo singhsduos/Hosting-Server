@@ -1,42 +1,118 @@
+// NPM Modules
+const config = require('config');
 const express = require('express');
-const cors = require('cors');
 const path = require('path');
 
-// Create Express app
-const app = express();
+// Local Modules
+const { dbConnect } = require('./db/mongodb');
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+module.exports = class App {
+  constructor(appInit) {
+    if (!appInit || !appInit.port || !appInit.middleWares || !appInit.controllers) {
+      throw new Error('Missing required initialization parameters');
+    }
 
-// Serve static files from 'public' directory if exists
-app.use(express.static(path.join(__dirname, 'public')));
+    this.app = express();
+    this.port = appInit.port;
+    this.setupApplication(appInit);
+  }
 
-// Health check route
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
-});
+  setupApplication(appInit) {
+    try {
+      this.middleWare(appInit.middleWares);
+      this.assets();
+      this.routes(appInit.controllers);
+      this.errorHandler(appInit.errorHandlers);
+      this.initDatabse();
+    } catch (error) {
+      logger.error('Error setting up application:', error);
+      throw error;
+    }
+  }
 
-// API routes will be imported and used here
-// Example: app.use('/api/users', require('./routes/users'));
+  middleWare(middleWares) {
+    if (!Array.isArray(middleWares)) {
+      throw new Error('Middlewares must be an array');
+    }
 
-// 404 handler
-app.use((req, res, next) => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: `Route ${req.method} ${req.url} not found`
-  });
-});
+    middleWares.forEach(middleware => {
+      if (typeof middleware === 'function') {
+        this.app.use(middleware);
+      } else {
+        logger.warn('Skipping invalid middleware:', middleware);
+      }
+    });
+  }
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
-    error: err.name || 'Internal Server Error',
-    message: err.message || 'Something went wrong!',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-  });
-});
+  assets() {
+    try {
+      // Serve static files
+      this.app.use(express.static(path.join(__dirname, 'public')));
+      
+      // Set up view engine
+      this.app.set('views', path.join(__dirname, 'views'));
+      this.app.set('layout', './layouts/layout');
+      this.app.set('view engine', 'ejs');
+    } catch (error) {
+      logger.error('Error setting up assets:', error);
+      throw error;
+    }
+  }
 
-module.exports = app;
+  routes(controllers) {
+    if (!Array.isArray(controllers)) {
+      throw new Error('Controllers must be an array');
+    }
+
+    controllers.forEach(controller => {
+      if (!controller || !controller.path || !controller.router) {
+        logger.warn('Invalid controller configuration:', controller);
+        return;
+      }
+      this.app.use('/api/v1' + controller.path, controller.router);
+    });
+  }
+
+  errorHandler(errorHandlers) {
+    if (!Array.isArray(errorHandlers)) {
+      throw new Error('Error handlers must be an array');
+    }
+
+    errorHandlers.forEach(errorHandler => {
+      if (typeof errorHandler === 'function') {
+        this.app.use(errorHandler);
+      } else {
+        logger.warn('Skipping invalid error handler:', errorHandler);
+      }
+    });
+  }
+
+  async initDatabse() {
+    try {
+      await dbConnect();
+      logger.info('Database initialized successfully');
+    } catch (error) {
+      logger.error('Database initialization failed:', error);
+      throw error;
+    }
+  }
+
+  listen() {
+    try {
+      const server = this.app.listen(this.port, () => {
+        logger.info(`App listening on ${config.get('url.site_url')}/api/v1`);
+        logger.info(`NODE_ENV: ${process.env.NODE_ENV}`);
+      });
+
+      server.on('error', (error) => {
+        logger.error('Server error:', error);
+        process.exit(1);
+      });
+
+      return server;
+    } catch (error) {
+      logger.error('Failed to start server:', error);
+      throw error;
+    }
+  }
+}
