@@ -1,10 +1,7 @@
 // NPM Modules
-const config = require('config');
 const express = require('express');
 const path = require('path');
 
-// Local Helpers
-const logger = require('./helpers/logger');
 
 /**
  * Express application class

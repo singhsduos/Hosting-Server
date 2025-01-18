@@ -1,9 +1,9 @@
 const config = {
   development: {
-    port: process.env.PORT || 20108,
+    port: process.env.PORT || 3000,
     database: {
       mongodb: {
-        url: process.env.MONGODB_URI || 'mongodb://localhost:27017/hosting-server'
+        url: process.env.MONGODB_URI || 'mongodb://localhost:3000/hosting-server'
       },
       postgres: {
         host: process.env.POSTGRES_HOST || 'localhost',
@@ -13,7 +13,7 @@ const config = {
         password: process.env.POSTGRES_PASSWORD || 'postgres'
       }
     },
-    apiUrl: process.env.API_URL || 'http://localhost:20108',
+    apiUrl: process.env.API_URL || 'http://localhost:3000',
     frontBaseUrl: process.env.FRONT_BASE_URL || 'http://localhost:3000',
     sessionSecret: process.env.SESSION_SECRET || 'your-super-secret-session-key'
   },
