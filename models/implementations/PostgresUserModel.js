@@ -140,7 +140,7 @@ class PostgresUserModel extends Model {
 
     return {
       whereClause: conditions.length ? conditions.join(' AND ') : '',
-      values
+      values,
     };
   }
 
@@ -163,7 +163,7 @@ class PostgresUserModel extends Model {
 
     return {
       setClause: sets.join(', '),
-      values
+      values,
     };
   }
 }

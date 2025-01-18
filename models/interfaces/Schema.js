@@ -9,7 +9,7 @@ const FieldType = {
   DATE: 'date',
   OBJECT: 'object',
   ARRAY: 'array',
-  REFERENCE: 'reference'
+  REFERENCE: 'reference',
 };
 
 /**
@@ -63,5 +63,5 @@ class Schema {
 
 module.exports = {
   Schema,
-  FieldType
+  FieldType,
 };

@@ -2,7 +2,6 @@
 const express = require('express');
 const path = require('path');
 
-
 /**
  * Express application class
  * @class App
@@ -51,7 +50,7 @@ class App {
       throw new Error('Middlewares must be an array');
     }
 
-    middleWares.forEach(middleware => {
+    middleWares.forEach((middleware) => {
       if (typeof middleware === 'function') {
         this.app.use(middleware);
       } else {
@@ -91,7 +90,7 @@ class App {
       throw new Error('Controllers must be an array');
     }
 
-    controllers.forEach(controller => {
+    controllers.forEach((controller) => {
       if (controller.router) {
         this.app.use('/', controller.router);
       } else {
@@ -109,7 +108,7 @@ class App {
       throw new Error('Error handlers must be an array');
     }
 
-    errorHandlers.forEach(handler => {
+    errorHandlers.forEach((handler) => {
       if (typeof handler === 'function') {
         this.app.use(handler);
       } else {

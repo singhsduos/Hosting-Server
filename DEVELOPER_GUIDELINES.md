@@ -1,9 +1,11 @@
 # Developer Guidelines
 
 ## Project Overview
+
 This project is a web application that utilizes Express for the backend and MongoDB/POSTGRESQL for data storage. It follows a modular architecture with a clear separation of concerns.
 
 ## Folder Structure
+
 - **models/**: Contains data models and schemas.
 - **services/**: Contains business logic and service classes.
 - **controllers/**: Handles incoming requests and responses.
@@ -11,37 +13,45 @@ This project is a web application that utilizes Express for the backend and Mong
 - **middlewares/**: Contains middleware functions for request processing.
 
 ## Coding Standards
+
 - Follow consistent naming conventions for files, classes, and functions.
 - Use JSDoc comments for all public methods and classes.
 - Maintain a clean and organized code structure.
 
 ## Model Design
+
 - Models should extend a base model interface.
 - Use Mongoose for defining schemas and interacting with MongoDB.
 
 ## Service Layer
+
 - The service layer should encapsulate all business logic.
 - Services should interact with models to perform CRUD operations.
 
 ## Controller Layer
+
 - Controllers should handle incoming requests and delegate to the service layer.
 - Use proper HTTP status codes in responses.
 
 ## Error Handling
+
 - Implement a centralized error handling mechanism.
 - Use custom error classes for better error management.
 
 ## Using Mongoose
+
 - Use Mongoose methods for all database operations.
 - Define schemas in separate files and import them into models.
 
 ## LLD Concepts
+
 - Implement interfaces and abstract classes where applicable.
 - Use design patterns to promote code reusability and maintainability.
 
 ## API Endpoints Documentation
 
 ### 1. GET /users
+
 - **Description**: Retrieves all users with optional filtering and pagination.
 - **Request Parameters**:
   - **Query Parameters**:
@@ -58,8 +68,8 @@ This project is a web application that utilizes Express for the backend and Mong
     {
       "success": true,
       "data": [
-        {"id": 1, "email": "user@example.com"},
-        {"id": 2, "email": "user2@example.com"}
+        { "id": 1, "email": "user@example.com" },
+        { "id": 2, "email": "user2@example.com" }
       ],
       "pagination": {
         "total": 2,
@@ -70,6 +80,7 @@ This project is a web application that utilizes Express for the backend and Mong
     ```
 
 ### 2. GET /users/:id
+
 - **Description**: Retrieves a user by their ID.
 - **Request Parameters**:
   - **Path Parameter**:
@@ -80,11 +91,12 @@ This project is a web application that utilizes Express for the backend and Mong
     ```json
     {
       "success": true,
-      "data": {"id": 1, "email": "user@example.com"}
+      "data": { "id": 1, "email": "user@example.com" }
     }
     ```
 
 ### 3. POST /users
+
 - **Description**: Creates a new user.
 - **Request Body**:
   - User data (e.g., email, password, name).
@@ -94,11 +106,12 @@ This project is a web application that utilizes Express for the backend and Mong
     ```json
     {
       "success": true,
-      "data": {"id": 3, "email": "newuser@example.com"}
+      "data": { "id": 3, "email": "newuser@example.com" }
     }
     ```
 
 ### 4. POST /users/login
+
 - **Description**: Authenticates a user.
 - **Request Body**:
   - Credentials (e.g., email, password).
@@ -113,6 +126,7 @@ This project is a web application that utilizes Express for the backend and Mong
     ```
 
 ### 5. PUT /users/:id
+
 - **Description**: Updates user information by ID.
 - **Request Parameters**:
   - **Path Parameter**:
@@ -125,11 +139,12 @@ This project is a web application that utilizes Express for the backend and Mong
     ```json
     {
       "success": true,
-      "data": {"id": 1, "email": "updateduser@example.com"}
+      "data": { "id": 1, "email": "updateduser@example.com" }
     }
     ```
 
 ### 6. DELETE /users/:id
+
 - **Description**: Deletes a user by ID.
 - **Request Parameters**:
   - **Path Parameter**:
@@ -145,6 +160,7 @@ This project is a web application that utilizes Express for the backend and Mong
     ```
 
 ## Additional Notes
+
 - Ensure that all new features are covered by unit tests.
 - Document any new functionality added to the project.
 

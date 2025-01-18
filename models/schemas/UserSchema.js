@@ -15,33 +15,33 @@ class UserSchema extends Schema {
         required: true,
         unique: true,
         validate: {
-          pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        }
+          pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        },
       },
       password: {
         type: FieldType.STRING,
-        required: true
+        required: true,
       },
       name: {
         type: FieldType.STRING,
-        required: true
+        required: true,
       },
       age: {
         type: FieldType.NUMBER,
-        required: false
+        required: false,
       },
       isActive: {
         type: FieldType.BOOLEAN,
-        default: true
+        default: true,
       },
       createdAt: {
         type: FieldType.DATE,
-        default: Date.now
+        default: Date.now,
       },
       updatedAt: {
         type: FieldType.DATE,
-        default: Date.now
-      }
+        default: Date.now,
+      },
     };
   }
 
@@ -57,7 +57,7 @@ class UserSchema extends Schema {
         type: this._getMongooseType(definition.type),
         required: definition.required,
         default: definition.default,
-        unique: definition.unique
+        unique: definition.unique,
       };
 
       if (definition.validate) {
@@ -68,7 +68,7 @@ class UserSchema extends Schema {
     }
 
     return new mongoose.Schema(mongooseSchema, {
-      timestamps: true
+      timestamps: true,
     });
   }
 
@@ -130,20 +130,20 @@ class UserSchema extends Schema {
    */
   _getMongooseType(type) {
     switch (type) {
-    case FieldType.STRING:
-      return String;
-    case FieldType.NUMBER:
-      return Number;
-    case FieldType.BOOLEAN:
-      return Boolean;
-    case FieldType.DATE:
-      return Date;
-    case FieldType.OBJECT:
-      return Object;
-    case FieldType.ARRAY:
-      return Array;
-    default:
-      throw new Error(`Unsupported type: ${type}`);
+      case FieldType.STRING:
+        return String;
+      case FieldType.NUMBER:
+        return Number;
+      case FieldType.BOOLEAN:
+        return Boolean;
+      case FieldType.DATE:
+        return Date;
+      case FieldType.OBJECT:
+        return Object;
+      case FieldType.ARRAY:
+        return Array;
+      default:
+        throw new Error(`Unsupported type: ${type}`);
     }
   }
 
@@ -155,19 +155,19 @@ class UserSchema extends Schema {
    */
   _getPostgresType(type) {
     switch (type) {
-    case FieldType.STRING:
-      return 'VARCHAR(255)';
-    case FieldType.NUMBER:
-      return 'INTEGER';
-    case FieldType.BOOLEAN:
-      return 'BOOLEAN';
-    case FieldType.DATE:
-      return 'TIMESTAMP';
-    case FieldType.OBJECT:
-    case FieldType.ARRAY:
-      return 'JSONB';
-    default:
-      throw new Error(`Unsupported type: ${type}`);
+      case FieldType.STRING:
+        return 'VARCHAR(255)';
+      case FieldType.NUMBER:
+        return 'INTEGER';
+      case FieldType.BOOLEAN:
+        return 'BOOLEAN';
+      case FieldType.DATE:
+        return 'TIMESTAMP';
+      case FieldType.OBJECT:
+      case FieldType.ARRAY:
+        return 'JSONB';
+      default:
+        throw new Error(`Unsupported type: ${type}`);
     }
   }
 
@@ -181,16 +181,16 @@ class UserSchema extends Schema {
     if (definition.default === undefined) return null;
 
     switch (definition.type) {
-    case FieldType.STRING:
-      return `'${definition.default}'`;
-    case FieldType.NUMBER:
-      return definition.default.toString();
-    case FieldType.BOOLEAN:
-      return definition.default.toString();
-    case FieldType.DATE:
-      return definition.default === Date.now ? 'CURRENT_TIMESTAMP' : `'${definition.default}'`;
-    default:
-      return null;
+      case FieldType.STRING:
+        return `'${definition.default}'`;
+      case FieldType.NUMBER:
+        return definition.default.toString();
+      case FieldType.BOOLEAN:
+        return definition.default.toString();
+      case FieldType.DATE:
+        return definition.default === Date.now ? 'CURRENT_TIMESTAMP' : `'${definition.default}'`;
+      default:
+        return null;
     }
   }
 
@@ -204,7 +204,7 @@ class UserSchema extends Schema {
     if (validate.pattern) {
       return {
         validator: (value) => validate.pattern.test(value),
-        message: 'Invalid format'
+        message: 'Invalid format',
       };
     }
     return {};

@@ -20,7 +20,8 @@ class UserService {
     const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = options;
     const skip = (page - 1) * limit;
 
-    const users = await this.userModel.find(filters)
+    const users = await this.userModel
+      .find(filters)
       .sort({ [sortBy]: sortOrder })
       .skip(skip)
       .limit(limit);
@@ -32,8 +33,8 @@ class UserService {
       pagination: {
         total,
         page: parseInt(page),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -95,7 +96,7 @@ class UserService {
 
       const existingUser = await this.userModel.findOne({
         email: updateData.email,
-        _id: { $ne: id }
+        _id: { $ne: id },
       });
       if (existingUser) {
         throw new Error('Email already in use');
@@ -112,7 +113,7 @@ class UserService {
 
     const user = await this.userModel.findByIdAndUpdate(id, updateData, {
       new: true,
-      runValidators: true
+      runValidators: true,
     });
 
     if (!user) {

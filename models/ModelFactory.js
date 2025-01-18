@@ -14,17 +14,15 @@ class ModelFactory {
    * @returns {import('./interfaces/Model')} Model instance
    * @throws {Error} If model or database type is not supported
    */
-  static createModel (modelName) {
+  static createModel(modelName) {
     const dbType = dbConfig.activeDb;
     const schema = ModelFactory._createSchema(modelName);
 
     switch (modelName.toLowerCase()) {
-    case 'user':
-      return dbType === 'mongodb'
-        ? new MongoUserModel(schema)
-        : new PostgresUserModel(schema);
-    default:
-      throw new Error(`Unsupported model: ${modelName}`);
+      case 'user':
+        return dbType === 'mongodb' ? new MongoUserModel(schema) : new PostgresUserModel(schema);
+      default:
+        throw new Error(`Unsupported model: ${modelName}`);
     }
   }
 
@@ -35,12 +33,12 @@ class ModelFactory {
    * @returns {import('./interfaces/Schema').Schema} Schema instance
    * @throws {Error} If model is not supported
    */
-  static _createSchema (modelName) {
+  static _createSchema(modelName) {
     switch (modelName.toLowerCase()) {
-    case 'user':
-      return new UserSchema();
-    default:
-      throw new Error(`Unsupported model: ${modelName}`);
+      case 'user':
+        return new UserSchema();
+      default:
+        throw new Error(`Unsupported model: ${modelName}`);
     }
   }
 }

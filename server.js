@@ -1,6 +1,15 @@
 // Required first
-require('dotenv').config();
+const dotenv = require('dotenv');
 require('express-async-errors');
+const config = require('./config/config');
+
+// Load environment variables from the appropriate .env file
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config({ path: '.env.production' });
+} else {
+  dotenv.config({ path: '.env.development' });
+}
+
 
 // NPM Modules
 const cookie = require('cookie-parser');
@@ -15,6 +24,7 @@ const ErrorHandler = require('./helpers/error');
 const logger = require('./helpers/logger');
 
 // Set up global error handlers
+global.appConfig = config;
 global.logger = logger;
 global.ErrorHandler = ErrorHandler;
 
@@ -54,7 +64,7 @@ async function initializeApp() {
           origin: getAllowedOrigins(),
           credentials: true,
           methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-          allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
+          allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
         }),
         accessHeaderMiddleware,
         session({
@@ -64,14 +74,12 @@ async function initializeApp() {
           cookie: {
             secure: process.env.NODE_ENV === 'production',
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000
-          }
-        })
+            maxAge: 24 * 60 * 60 * 1000,
+          },
+        }),
       ],
-      controllers: [
-        new UserController()
-      ],
-      errorHandlers: [invalidPath, error]
+      controllers: [new UserController()],
+      errorHandlers: [invalidPath, error],
     });
 
     await app.listen();
@@ -86,7 +94,7 @@ async function initializeApp() {
 initializeApp();
 
 // Global error handlers
-process.on('uncaughtException', err => {
+process.on('uncaughtException', (err) => {
   logger.error('Uncaught Exception:', err);
   gracefulStopServer();
 });
@@ -94,7 +102,7 @@ process.on('uncaughtException', err => {
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection:', {
     promise,
-    reason
+    reason,
   });
   gracefulStopServer();
 });

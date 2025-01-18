@@ -52,14 +52,14 @@ class UserController {
         page: parseInt(req.query.page) || 1,
         limit: parseInt(req.query.limit) || 10,
         sortBy: req.query.sortBy || 'createdAt',
-        sortOrder: req.query.sortOrder || 'desc'
+        sortOrder: req.query.sortOrder || 'desc',
       };
 
       const result = await this.userService.getAllUsers(filters, options);
       res.status(200).json({
         success: true,
         data: result.users,
-        pagination: result.pagination
+        pagination: result.pagination,
       });
     } catch (error) {
       next(error);
@@ -117,7 +117,7 @@ class UserController {
       req.session.user = {
         id: user._id,
         email: user.email,
-        name: user.name
+        name: user.name,
       };
 
       res.status(200).json({
@@ -125,8 +125,8 @@ class UserController {
         data: {
           id: user._id,
           email: user.email,
-          name: user.name
-        }
+          name: user.name,
+        },
       });
     } catch (error) {
       res.status(401).json({ success: false, error: error.message });

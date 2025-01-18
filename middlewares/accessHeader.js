@@ -1,4 +1,5 @@
-const config = require('config');
+const config = require("../config/config.js")
+
 
 /**
  * Get allowed origins based on environment
@@ -7,11 +8,11 @@ const config = require('config');
 const getAllowedOrigins = () => {
   if (process.env.NODE_ENV === 'production') {
     return [
-      config.get('production').frontBaseUrl
+      config.frontBaseUrl
     ];
   }
   // For development, allow localhost origins
-  return [config.get(process.env.NODE_ENV || 'development').frontBaseUrl];
+  return [config.frontBaseUrl];
 };
 
 /**
