@@ -1,36 +1,33 @@
 const winston = require('winston');
-const chalk = require('chalk').default;
-
-const logger = winston.createLogger({
-  level: 'info',
+const fs = require('fs');
+require('winston-daily-rotate-file');
+// require('express-async-errors');
+const logPath = './logs';
+if (!fs.existsSync(logPath)) {
+  fs.mkdirSync(logPath);
+}
+const colors = {
+  error: 'red',
+  warn: 'yellow',
+  info: 'green',
+  http: 'magenta',
+  debug: 'white',
+};
+winston.addColors(colors);
+module.exports = winston.createLogger({
   format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.printf(({ timestamp, level, message }) => {
-      let coloredMessage;
-      switch (level) {
-        case 'error':
-          coloredMessage = chalk.red(message);
-          break;
-        case 'warn':
-          coloredMessage = chalk.yellow(message);
-          break;
-        case 'info':
-          coloredMessage = chalk.green(message);
-          break;
-        case 'debug':
-          coloredMessage = chalk.blue(message);
-          break;
-        default:
-          coloredMessage = message; // Default to no color
-      }
-      return `${timestamp} ${level.toUpperCase()}: ${coloredMessage}`;
-    })
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+    winston.format.colorize({ all: true }),
+    winston.format.errors({ stack: true }),
+    winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
   ),
   transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
-    new winston.transports.Console() // Console transport will now use the custom format
+    new winston.transports.Console(),
+    new winston.transports.DailyRotateFile({ filename: logPath + '/error.log', level: 'error' }),
+    new winston.transports.DailyRotateFile({ filename: logPath + '/info.log', level: 'info' }),
+  ],
+  exceptionHandlers: [
+    new winston.transports.Console(),
+    new winston.transports.DailyRotateFile({ filename: logPath + '/uncaughtExceptions.log' }),
   ],
 });
-
-module.exports = logger;

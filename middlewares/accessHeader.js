@@ -1,5 +1,4 @@
-const config = require("../config/config.js")
-
+const config = require('../config/config.js');
 
 /**
  * Get allowed origins based on environment
@@ -7,9 +6,7 @@ const config = require("../config/config.js")
  */
 const getAllowedOrigins = () => {
   if (process.env.NODE_ENV === 'production') {
-    return [
-      config.frontBaseUrl
-    ];
+    return [config.frontBaseUrl];
   }
   // For development, allow localhost origins
   return [config.frontBaseUrl];
@@ -48,10 +45,7 @@ const accessHeaderMiddleware = (req, res, next) => {
   );
 
   // Allow specific HTTP methods
-  res.header(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PUT, DELETE, OPTIONS'
-  );
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
@@ -63,5 +57,5 @@ const accessHeaderMiddleware = (req, res, next) => {
 
 module.exports = {
   accessHeaderMiddleware,
-  getAllowedOrigins
+  getAllowedOrigins,
 };

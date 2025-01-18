@@ -10,7 +10,6 @@ if (process.env.NODE_ENV === 'production') {
   dotenv.config({ path: '.env.development' });
 }
 
-
 // NPM Modules
 const cookie = require('cookie-parser');
 const cors = require('cors');
