@@ -43,7 +43,7 @@ async function initializeApp() {
     logger.info('Database initialized successfully');
 
     const app = new App({
-      port: process.env.PORT || 20108,
+      port: process.env.PORT || 3000,
       middleWares: [
         morgan('dev', { skip: avoid }),
         expressLayouts,
