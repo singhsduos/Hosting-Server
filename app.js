@@ -92,7 +92,7 @@ class App {
 
     controllers.forEach((controller) => {
       if (controller.router) {
-        this.app.use('/', controller.router);
+        this.app.use(controller.path, controller.router);
       } else {
         logger.warn('Skipping invalid controller:', controller);
       }
