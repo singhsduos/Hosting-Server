@@ -1,53 +1,70 @@
-// Required first
 const dotenv = require('dotenv');
 require('express-async-errors');
 const config = require('./config/config');
 
-// Load environment variables from the appropriate .env file
 if (process.env.NODE_ENV === 'production') {
   dotenv.config({ path: '.env.production' });
 } else {
   dotenv.config({ path: '.env.development' });
 }
 
-// NPM Modules
 const cookie = require('cookie-parser');
 const cors = require('cors');
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
+const GitHubStrategy = require('passport-github2').Strategy;
+const GitLabStrategy = require('passport-gitlab2').Strategy;
 const morgan = require('morgan');
+const passport = require('passport');
 const session = require('express-session');
 
-// Local Helpers
 const ErrorHandler = require('./helpers/error');
 const logger = require('./helpers/logger');
 
-// Set up global error handlers
-global.appConfig = config;
+global.config = config;
 global.logger = logger;
 global.ErrorHandler = ErrorHandler;
 
-// Database
 const { initializeDatabase, closeDatabase } = require('./db');
 
-// Controllers
-const UserController = require('./controllers/user.controller');
+const AuthController = require('./controllers/auth.controller');
 
-// Middleware
 const { accessHeaderMiddleware, getAllowedOrigins } = require('./middlewares/accessHeader');
 const { error, invalidPath } = require('./middlewares/error-handler');
 
-// Local Modules
 const App = require('./app');
 
-/**
- * Initialize the application
- * @async
- * @returns {Promise<void>}
- */
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: `${config.frontBaseUrl}/auth/github/callback`,
+    },
+    (accessToken, refreshToken, profile, done) => {
+      return done(null, profile);
+    }
+  )
+);
+
+passport.use(
+  new GitLabStrategy(
+    {
+      clientID: process.env.GITLAB_CLIENT_ID,
+      clientSecret: process.env.GITLAB_CLIENT_SECRET,
+      callbackURL: `${config.frontBaseUrl}/auth/gitlab/callback`,
+    },
+    (accessToken, refreshToken, profile, done) => {
+      return done(null, profile);
+    }
+  )
+);
+
 async function initializeApp() {
   try {
-    // Initialize Database
     await initializeDatabase();
     logger.info('Database initialized successfully');
 
@@ -76,8 +93,10 @@ async function initializeApp() {
             maxAge: 24 * 60 * 60 * 1000,
           },
         }),
+        passport.initialize(),
+        passport.session(),
       ],
-      controllers: [new UserController()],
+      controllers: [new AuthController()],
       errorHandlers: [invalidPath, error],
     });
 
@@ -89,10 +108,8 @@ async function initializeApp() {
   }
 }
 
-// Start the application
 initializeApp();
 
-// Global error handlers
 process.on('uncaughtException', (err) => {
   logger.error('Uncaught Exception:', err);
   gracefulStopServer();
@@ -106,14 +123,9 @@ process.on('unhandledRejection', (reason, promise) => {
   gracefulStopServer();
 });
 
-// Graceful shutdown handlers
 process.on('SIGINT', gracefulStopServer);
 process.on('SIGTERM', gracefulStopServer);
 
-/**
- * Gracefully stop the server
- * @async
- */
 async function gracefulStopServer() {
   try {
     logger.info('Initiating graceful shutdown...');
@@ -129,12 +141,6 @@ async function gracefulStopServer() {
   }
 }
 
-/**
- * Check if response should be avoided for logging
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @returns {boolean} True if response should be avoided
- */
 function avoid(req, res) {
   return res.statusCode === 304;
 }

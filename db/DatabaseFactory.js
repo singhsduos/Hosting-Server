@@ -15,12 +15,12 @@ class DatabaseFactory {
    */
   static createDatabase(type, config) {
     switch (type.toLowerCase()) {
-    case 'mongodb':
-      return new MongoDatabase(config);
-    case 'postgres':
-      return new PostgresDatabase(config);
-    default:
-      throw new Error(`Unsupported database type: ${type}`);
+      case 'mongodb':
+        return new MongoDatabase(config);
+      case 'postgres':
+        return new PostgresDatabase(config);
+      default:
+        throw new Error(`Unsupported database type: ${type}`);
     }
   }
 }

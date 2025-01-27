@@ -24,6 +24,12 @@ class MongoUserModel extends Model {
    * @returns {Promise<Object>} Created user
    */
   async create(data) {
+    if (data.profile_picture) {
+      data.profile_picture = {
+        data: data.profile_picture.data,
+        contentType: data.profile_picture.contentType,
+      };
+    }
     return this.model.create(data);
   }
 

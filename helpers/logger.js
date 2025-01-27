@@ -1,7 +1,6 @@
 const winston = require('winston');
 const fs = require('fs');
 require('winston-daily-rotate-file');
-// require('express-async-errors');
 const logPath = './logs';
 if (!fs.existsSync(logPath)) {
   fs.mkdirSync(logPath);

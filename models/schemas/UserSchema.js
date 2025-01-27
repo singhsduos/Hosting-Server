@@ -20,15 +20,23 @@ class UserSchema extends Schema {
       },
       password: {
         type: FieldType.STRING,
-        required: true,
       },
       name: {
         type: FieldType.STRING,
         required: true,
       },
+      profile_picture: {
+        type: FieldType.STRING,
+        required: false,
+      },
       age: {
         type: FieldType.NUMBER,
         required: false,
+      },
+      origin: {
+        type: FieldType.STRING,
+        enum: ['Github', 'Gitlab'],
+        required: true,
       },
       isActive: {
         type: FieldType.BOOLEAN,
@@ -62,6 +70,10 @@ class UserSchema extends Schema {
 
       if (definition.validate) {
         schemaField.validate = this._createMongooseValidator(definition.validate);
+      }
+
+      if (definition.enum) {
+        schemaField.enum = definition.enum;
       }
 
       mongooseSchema[field] = schemaField;
@@ -101,7 +113,7 @@ class UserSchema extends Schema {
         id SERIAL PRIMARY KEY,
         ${fields.join(',\n        ')}
       );
-      
+
       CREATE INDEX IF NOT EXISTS idx_${this.getTableName()}_email ON ${this.getTableName()}(email);
     `;
   }
@@ -130,20 +142,20 @@ class UserSchema extends Schema {
    */
   _getMongooseType(type) {
     switch (type) {
-    case FieldType.STRING:
-      return String;
-    case FieldType.NUMBER:
-      return Number;
-    case FieldType.BOOLEAN:
-      return Boolean;
-    case FieldType.DATE:
-      return Date;
-    case FieldType.OBJECT:
-      return Object;
-    case FieldType.ARRAY:
-      return Array;
-    default:
-      throw new Error(`Unsupported type: ${type}`);
+      case FieldType.STRING:
+        return String;
+      case FieldType.NUMBER:
+        return Number;
+      case FieldType.BOOLEAN:
+        return Boolean;
+      case FieldType.DATE:
+        return Date;
+      case FieldType.OBJECT:
+        return Object;
+      case FieldType.ARRAY:
+        return Array;
+      default:
+        throw new Error(`Unsupported type: ${type}`);
     }
   }
 
@@ -155,19 +167,19 @@ class UserSchema extends Schema {
    */
   _getPostgresType(type) {
     switch (type) {
-    case FieldType.STRING:
-      return 'VARCHAR(255)';
-    case FieldType.NUMBER:
-      return 'INTEGER';
-    case FieldType.BOOLEAN:
-      return 'BOOLEAN';
-    case FieldType.DATE:
-      return 'TIMESTAMP';
-    case FieldType.OBJECT:
-    case FieldType.ARRAY:
-      return 'JSONB';
-    default:
-      throw new Error(`Unsupported type: ${type}`);
+      case FieldType.STRING:
+        return 'VARCHAR(255)';
+      case FieldType.NUMBER:
+        return 'INTEGER';
+      case FieldType.BOOLEAN:
+        return 'BOOLEAN';
+      case FieldType.DATE:
+        return 'TIMESTAMP';
+      case FieldType.OBJECT:
+      case FieldType.ARRAY:
+        return 'JSONB';
+      default:
+        throw new Error(`Unsupported type: ${type}`);
     }
   }
 
@@ -181,16 +193,16 @@ class UserSchema extends Schema {
     if (definition.default === undefined) return null;
 
     switch (definition.type) {
-    case FieldType.STRING:
-      return `'${definition.default}'`;
-    case FieldType.NUMBER:
-      return definition.default.toString();
-    case FieldType.BOOLEAN:
-      return definition.default.toString();
-    case FieldType.DATE:
-      return definition.default === Date.now ? 'CURRENT_TIMESTAMP' : `'${definition.default}'`;
-    default:
-      return null;
+      case FieldType.STRING:
+        return `'${definition.default}'`;
+      case FieldType.NUMBER:
+        return definition.default.toString();
+      case FieldType.BOOLEAN:
+        return definition.default.toString();
+      case FieldType.DATE:
+        return definition.default === Date.now ? 'CURRENT_TIMESTAMP' : `'${definition.default}'`;
+      default:
+        return null;
     }
   }
 

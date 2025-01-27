@@ -1,15 +1,8 @@
 const express = require('express');
-const AuthService = require('../services/auth.service');
 const passport = require('passport');
+const AuthService = require('../services/auth.service');
 
-/**
- * Auth Controller class
- * @class AuthController
- */
 class AuthController {
-  /**
-   * Create a new AuthController instance
-   */
   constructor() {
     this.path = '/auth';
     this.router = express.Router();
@@ -17,41 +10,79 @@ class AuthController {
     this.initializeRoutes();
   }
 
-  /**
-   * Initialize controller routes
-   * @private
-   */
   initializeRoutes() {
-    this.router.get('/github', passport.authenticate('github', { scope: ['user:email'] }),this.githubLogin.bind(this));
-    this.router.get('/gitlab', passport.authenticate('gitlab'),this.gitlabLogin.bind(this));
-    this.router.get('/callback', passport.authenticate('github', { failureRedirect: '/' }), this.handleOAuthCallback.bind(this));
-    this.router.get('/callback/gitlab', passport.authenticate('gitlab', { failureRedirect: '/' }), this.handleOAuthCallback.bind(this));
+    this.router.get('/login', this.loginPage.bind(this));
+    this.router.get('/github', passport.authenticate('github', { scope: ['profile', 'email'] }));
+    this.router.get(
+      '/github/callback',
+      passport.authenticate('github', { failureRedirect: '/auth/failure' }),
+      this.handleGitHubCallback.bind(this)
+    );
+
+    this.router.get('/gitlab', passport.authenticate('gitlab'));
+    this.router.get(
+      '/gitlab/callback',
+      passport.authenticate('gitlab', { failureRedirect: '/auth/failure' }),
+      this.handleGitLabCallback.bind(this)
+    );
   }
 
-  /**
-   * Dummy function for user login
-   */
-  async githubLogin(req, res, next) {
-    // Dummy login logic
-    res.send('Dummy login function');
+  async loginPage(req, res) {
+   return res.render('pages/login/login');
   }
 
-  /**
-   * Dummy function for user registration
-   */
-  async gitlabLogin(req, res, next) {
-    // Dummy registration logic
-    res.send('Dummy registration function');
+  async handleGitHubCallback(req, res) {
+    try {
+      const { user } = req;
+
+      if (!user) {
+        logger.error('GitHub callback: No user found in request');
+        return res.redirect('/auth/failure');
+      }
+
+      const userData = {
+        username: user.username || user.displayName || 'Unknown',
+        email: user._json.email || 'No email available',
+        profile_picture: user.photos?.[0]?.value || null,
+        origin: 'Github',
+        isActive: true,
+      };
+
+      await this.authService.registerUser(userData);
+
+      logger.info(`GitHub user registered/updated: ${userData.username}`);
+      res.redirect('/');
+    } catch (err) {
+      logger.error('Error during GitHub callback:', err);
+      res.redirect('/auth/failure');
+    }
   }
 
-  /**
-   * Handle OAuth callback
-   * @param {express.Request} req - Express request object
-   * @param {express.Response} res - Express response object
-   */
-  handleOAuthCallback(req, res) {
-    // Successful authentication, redirect home.
-    res.redirect('/');
+  async handleGitLabCallback(req, res) {
+    try {
+      const { user } = req;
+
+      if (!user) {
+        logger.error('GitLab callback: No user found in request');
+        return res.redirect('/auth/failure');
+      }
+
+      const userData = {
+        username: user.username || user.displayName || 'Unknown',
+        email: user._json.email || 'No email available',
+        profile_picture: user.avatarUrl || null,
+        origin: 'Gitlab',
+        isActive: true,
+      };
+
+      await this.authService.registerUser(userData);
+
+      logger.info(`GitLab user registered/updated: ${userData.username}`);
+      res.redirect('/');
+    } catch (err) {
+      logger.error('Error during GitLab callback:', err);
+      res.redirect('/auth/failure');
+    }
   }
 }
 
