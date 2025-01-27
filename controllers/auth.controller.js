@@ -13,22 +13,14 @@ class AuthController {
   initializeRoutes() {
     this.router.get('/login', this.loginPage.bind(this));
     this.router.get('/github', passport.authenticate('github', { scope: ['profile', 'email'] }));
-    this.router.get(
-      '/github/callback',
-      passport.authenticate('github', { failureRedirect: '/auth/failure' }),
-      this.handleGitHubCallback.bind(this)
-    );
+    this.router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/auth/failure' }), this.handleGitHubCallback.bind(this));
 
     this.router.get('/gitlab', passport.authenticate('gitlab'));
-    this.router.get(
-      '/gitlab/callback',
-      passport.authenticate('gitlab', { failureRedirect: '/auth/failure' }),
-      this.handleGitLabCallback.bind(this)
-    );
+    this.router.get('/gitlab/callback',passport.authenticate('gitlab', { failureRedirect: '/auth/failure' }), this.handleGitLabCallback.bind(this));
   }
 
   async loginPage(req, res) {
-   return res.render('pages/login/login');
+    return res.render('pages/login/login');
   }
 
   async handleGitHubCallback(req, res) {
