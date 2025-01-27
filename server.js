@@ -1,16 +1,13 @@
-// Required first
 const dotenv = require('dotenv');
 require('express-async-errors');
 const config = require('./config/config');
 
-// Load environment variables from the appropriate .env file
 if (process.env.NODE_ENV === 'production') {
   dotenv.config({ path: '.env.production' });
 } else {
   dotenv.config({ path: '.env.development' });
 }
 
-// NPM Modules
 const cookie = require('cookie-parser');
 const cors = require('cors');
 const express = require('express');
@@ -21,28 +18,20 @@ const morgan = require('morgan');
 const passport = require('passport');
 const session = require('express-session');
 
-
-
-// Local Helpers
 const ErrorHandler = require('./helpers/error');
 const logger = require('./helpers/logger');
 
-// Set up global error handlers
 global.config = config;
 global.logger = logger;
 global.ErrorHandler = ErrorHandler;
 
-// Database
 const { initializeDatabase, closeDatabase } = require('./db');
 
-// Controllers
 const AuthController = require('./controllers/auth.controller');
 
-// Middleware
 const { accessHeaderMiddleware, getAllowedOrigins } = require('./middlewares/accessHeader');
 const { error, invalidPath } = require('./middlewares/error-handler');
 
-// Local Modules
 const App = require('./app');
 
 passport.serializeUser((user, done) => done(null, user));
@@ -64,14 +53,8 @@ passport.use(new GitLabStrategy({
   return done(null, profile);
 }));
 
-/**
- * Initialize the application
- * @async
- * @returns {Promise<void>}
- */
 async function initializeApp() {
   try {
-    // Initialize Database
     await initializeDatabase();
     logger.info('Database initialized successfully');
 
@@ -115,11 +98,8 @@ async function initializeApp() {
   }
 }
 
-// Start the application
 initializeApp();
 
-
-// Global error handlers
 process.on('uncaughtException', (err) => {
   logger.error('Uncaught Exception:', err);
   gracefulStopServer();
@@ -133,14 +113,9 @@ process.on('unhandledRejection', (reason, promise) => {
   gracefulStopServer();
 });
 
-// Graceful shutdown handlers
 process.on('SIGINT', gracefulStopServer);
 process.on('SIGTERM', gracefulStopServer);
 
-/**
- * Gracefully stop the server
- * @async
- */
 async function gracefulStopServer() {
   try {
     logger.info('Initiating graceful shutdown...');
@@ -156,12 +131,6 @@ async function gracefulStopServer() {
   }
 }
 
-/**
- * Check if response should be avoided for logging
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @returns {boolean} True if response should be avoided
- */
 function avoid(req, res) {
   return res.statusCode === 304;
 }

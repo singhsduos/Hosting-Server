@@ -1,13 +1,8 @@
 const config = require('config');
 
-/**
- * Database configuration
- */
 const dbConfig = {
-  // Active database type (mongodb or postgres)
   activeDb: process.env.DB_TYPE || 'postgres',
 
-  // MongoDB configuration
   mongodb: {
     uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/hosting-server',
     options: {
@@ -16,7 +11,6 @@ const dbConfig = {
     },
   },
 
-  // PostgreSQL configuration
   postgres: {
     user: process.env.POSTGRES_USER || 'postgres',
     host: process.env.POSTGRES_HOST || 'localhost',
