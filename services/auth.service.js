@@ -2,10 +2,10 @@ const ModelFactory = require('../models/ModelFactory');
 const { hash, compare } = require('bcrypt');
 
 /**
- * UserService class for handling user-related business logic
- * @class UserService
+ * AuthService class for handling user-related business logic
+ * @class AuthService
  */
-class UserService {
+class AuthService {
   constructor() {
     this.userModel = ModelFactory.createModel('user');
   }
@@ -157,6 +157,37 @@ class UserService {
   }
 
   /**
+   * Register user
+   * @param {Object} userData - User data
+   * @returns {Promise<Object>} Registered user
+   */
+  async registerUser(userData) {
+     // Validate email format
+     if (!this._isValidEmail(userData.email)) {
+      throw new Error('Invalid email format');
+     }
+
+  // Check if email already exists
+  const existingUser = await this.userModel.findOne({ email: userData.email, origin: userData.origin });
+  if (existingUser) {
+      throw new Error(`Email already registered with this origin provider ${userData.origin}`);
+  }
+
+  // Only hash the password if it is provided
+  if (userData.password) {
+      userData.password = await this._hashPassword(userData.password);
+  }
+
+  // Set default values
+  userData.isActive = userData.isActive ?? true;
+  userData.createdAt = new Date();
+  userData.updatedAt = new Date();
+
+  return this.userModel.create(userData);
+
+  }
+
+  /**
    * Hash password
    * @private
    * @param {string} password - Plain password
@@ -189,4 +220,4 @@ class UserService {
   }
 }
 
-module.exports = UserService;
+module.exports = AuthService;

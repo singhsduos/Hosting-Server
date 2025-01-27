@@ -19,16 +19,24 @@ class UserSchema extends Schema {
         },
       },
       password: {
-        type: FieldType.STRING,
-        required: true,
+        type: FieldType.STRING
       },
       name: {
         type: FieldType.STRING,
         required: true,
       },
+      profile_picture: {
+        type: FieldType.STRING,
+        required: false,
+      },
       age: {
         type: FieldType.NUMBER,
         required: false,
+      },
+      origin: {
+        type: FieldType.STRING,
+        enum: ['Github', 'Gitlab'],
+        required: true,
       },
       isActive: {
         type: FieldType.BOOLEAN,
@@ -62,6 +70,10 @@ class UserSchema extends Schema {
 
       if (definition.validate) {
         schemaField.validate = this._createMongooseValidator(definition.validate);
+      }
+
+      if (definition.enum) {
+        schemaField.enum = definition.enum;
       }
 
       mongooseSchema[field] = schemaField;
@@ -101,7 +113,7 @@ class UserSchema extends Schema {
         id SERIAL PRIMARY KEY,
         ${fields.join(',\n        ')}
       );
-      
+
       CREATE INDEX IF NOT EXISTS idx_${this.getTableName()}_email ON ${this.getTableName()}(email);
     `;
   }

@@ -15,15 +15,20 @@ const cookie = require('cookie-parser');
 const cors = require('cors');
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
+const GitHubStrategy = require('passport-github2').Strategy;
+const GitLabStrategy = require('passport-gitlab2').Strategy;
 const morgan = require('morgan');
+const passport = require('passport');
 const session = require('express-session');
+
+
 
 // Local Helpers
 const ErrorHandler = require('./helpers/error');
 const logger = require('./helpers/logger');
 
 // Set up global error handlers
-global.appConfig = config;
+global.config = config;
 global.logger = logger;
 global.ErrorHandler = ErrorHandler;
 
@@ -31,7 +36,7 @@ global.ErrorHandler = ErrorHandler;
 const { initializeDatabase, closeDatabase } = require('./db');
 
 // Controllers
-const UserController = require('./controllers/user.controller');
+const AuthController = require('./controllers/auth.controller');
 
 // Middleware
 const { accessHeaderMiddleware, getAllowedOrigins } = require('./middlewares/accessHeader');
@@ -39,6 +44,25 @@ const { error, invalidPath } = require('./middlewares/error-handler');
 
 // Local Modules
 const App = require('./app');
+
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: `${config.frontBaseUrl}/auth/github/callback`,
+}, (accessToken, refreshToken, profile, done) => {
+    return done(null, profile);
+}));
+
+passport.use(new GitLabStrategy({
+  clientID: process.env.GITLAB_CLIENT_ID,
+  clientSecret: process.env.GITLAB_CLIENT_SECRET,
+  callbackURL: `${config.frontBaseUrl}/auth/gitlab/callback`,
+}, (accessToken, refreshToken, profile, done) => {
+  return done(null, profile);
+}));
 
 /**
  * Initialize the application
@@ -76,8 +100,10 @@ async function initializeApp() {
             maxAge: 24 * 60 * 60 * 1000,
           },
         }),
+        passport.initialize(),
+        passport.session()
       ],
-      controllers: [new UserController()],
+      controllers: [new AuthController()],
       errorHandlers: [invalidPath, error],
     });
 
@@ -91,6 +117,7 @@ async function initializeApp() {
 
 // Start the application
 initializeApp();
+
 
 // Global error handlers
 process.on('uncaughtException', (err) => {

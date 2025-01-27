@@ -35,7 +35,6 @@ class PostgresUserModel extends Model {
       VALUES (${placeholders.join(', ')})
       RETURNING *
     `;
-
     const result = await db.query(query, values);
     return result[0];
   }
