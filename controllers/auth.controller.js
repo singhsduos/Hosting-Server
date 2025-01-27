@@ -13,10 +13,10 @@ class AuthController {
   initializeRoutes() {
     this.router.get('/login', this.loginPage.bind(this));
     this.router.get('/github', passport.authenticate('github', { scope: ['profile', 'email'] }));
-    this.router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/auth/failure' }), this.handleGitHubCallback.bind(this));
+    this.router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/auth/login' }), this.handleGitHubCallback.bind(this));
 
     this.router.get('/gitlab', passport.authenticate('gitlab'));
-    this.router.get('/gitlab/callback',passport.authenticate('gitlab', { failureRedirect: '/auth/failure' }), this.handleGitLabCallback.bind(this));
+    this.router.get('/gitlab/callback',passport.authenticate('gitlab', { failureRedirect: '/auth/login' }), this.handleGitLabCallback.bind(this));
   }
 
   async loginPage(req, res) {
@@ -29,7 +29,7 @@ class AuthController {
 
       if (!user) {
         logger.error('GitHub callback: No user found in request');
-        return res.redirect('/auth/failure');
+        return res.redirect('/auth/login');
       }
 
       const userData = {
@@ -46,7 +46,7 @@ class AuthController {
       res.redirect('/');
     } catch (err) {
       logger.error('Error during GitHub callback:', err);
-      res.redirect('/auth/failure');
+      res.redirect('/auth/login');
     }
   }
 
@@ -56,7 +56,7 @@ class AuthController {
 
       if (!user) {
         logger.error('GitLab callback: No user found in request');
-        return res.redirect('/auth/failure');
+        return res.redirect('/auth/login');
       }
 
       const userData = {
@@ -73,7 +73,7 @@ class AuthController {
       res.redirect('/');
     } catch (err) {
       logger.error('Error during GitLab callback:', err);
-      res.redirect('/auth/failure');
+      res.redirect('/auth/login');
     }
   }
 }
