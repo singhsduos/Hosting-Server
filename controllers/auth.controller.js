@@ -13,10 +13,10 @@ class AuthController {
   initializeRoutes() {
     this.router.get('/login', this.loginPage.bind(this));
     this.router.get('/github', passport.authenticate('github', { scope: ['profile', 'email'] }));
-    this.router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/auth/login' }), this.handleGitHubCallback.bind(this));
+    this.router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/auth/login?error=GitHub authentication failed' }), this.handleGitHubCallback.bind(this));
 
     this.router.get('/gitlab', passport.authenticate('gitlab'));
-    this.router.get('/gitlab/callback',passport.authenticate('gitlab', { failureRedirect: '/auth/login' }), this.handleGitLabCallback.bind(this));
+    this.router.get('/gitlab/callback',passport.authenticate('gitlab', { failureRedirect:  '/auth/login?error=GitLab authentication failed' }), this.handleGitLabCallback.bind(this));
   }
 
   async loginPage(req, res) {
@@ -29,7 +29,7 @@ class AuthController {
 
       if (!user) {
         logger.error('GitHub callback: No user found in request');
-        return res.redirect('/auth/login');
+        return res.redirect('/auth/login?error=No user found!');
       }
 
       const userData = {
@@ -46,7 +46,13 @@ class AuthController {
       res.redirect('/');
     } catch (err) {
       logger.error('Error during GitHub callback:', err);
-      res.redirect('/auth/login');
+      if(err.message === 'Email already registered with this origin provider Github') {
+        return res.redirect('/auth/login?error=Email already registered with this origin provider Github');
+      }
+      if(err.message === 'No user found in request') {
+        return res.redirect('/auth/login?error=No user found!');
+      }
+      res.redirect('/auth/login?error=GitHub authentication failed');
     }
   }
 
@@ -56,7 +62,7 @@ class AuthController {
 
       if (!user) {
         logger.error('GitLab callback: No user found in request');
-        return res.redirect('/auth/login');
+        return res.redirect('/auth/login?error=GitLab authentication failed');
       }
 
       const userData = {
@@ -73,7 +79,13 @@ class AuthController {
       res.redirect('/');
     } catch (err) {
       logger.error('Error during GitLab callback:', err);
-      res.redirect('/auth/login');
+      if(err.message === 'Email already registered with this origin provider Gitlab') {
+        return res.redirect('/auth/login?error=Email already registered with this origin provider Gitlab');
+      }
+      if(err.message === 'No user found in request') {
+        return res.redirect('/auth/login?error=No user found!');
+      }
+      res.redirect('/auth/login?error=GitLab authentication failed');
     }
   }
 }
