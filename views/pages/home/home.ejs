@@ -1,57 +1,28 @@
 <body>
     <div class="container mt-4 text-center">
-        <h1>Welcome to Your Repositories</h1>
-        <p>Select a repository from the dropdown:</p>
+      <h1>Welcome to Your Repositories</h1>
+      <p>Select a repository from the dropdown:</p>
 
-        <% if (repos && repos.length > 0) { %>
-        <div class="d-flex justify-content-center">
-            <select class="form-select form-select-lg mb-3" id="repoSelect" data-live-search="true"
-                title="Choose a repository" style="
-                width: 400px;
-                padding: 6px 10px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;">
-                <option value="">Select a repository</option>
-                <% repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach(repo => { %>
-                <option value="<%= repo.html_url %>">
-                    <%= repo.name %> - <%= repo.description || 'No description available' %>
-                </option>
-                <% }); %>
-            </select>
-        </div>
+      <% if (repos && repos.length > 0) { %>
+      <div class="selection">
+        <div class="custom-select" id="repoSelect" style="margin: 20px 0px;">Select a repository</div>
+        <div class="custom-select-container" id="repoSelectContainer"></div>
 
-        <div id="repoDetails" class="repo-details mt-4">
-            <h4>Repository Details</h4>
-            <p id="repoName"></p>
-            <p id="repoDescription"></p>
-            <small id="repoDate"></small>
-        </div>
-        <% } else { %>
-        <div class="alert alert-info" role="alert">
-            You have no public repositories to display.
-        </div>
-        <% } %>
+        <div class="custom-select" id="branchSelect" style="display: none;">Select a branch</div>
+        <div class="custom-select-container" id="branchSelectContainer" style="display: none;"></div>
+      </div>
+
+      <div id="repoDetails" class="repo-details mt-4" style="display: none;">
+        <h4>Repository Details</h4>
+        <p id="repoName"></p>
+        <p id="repoDescription"></p>
+        <small id="repoDate"></small>
+      </div>
+
+      <% } else { %>
+      <div class="alert alert-info" role="alert">
+        You have no public repositories to display.
+      </div>
+      <% } %>
     </div>
-
-    <script>
-        $(document).ready(function () {
-            $('.selectpicker').selectpicker();
-
-            $('#repoSelect').on('change', function () {
-                var selectedRepo = $(this).val();
-
-                if (selectedRepo) {
-                    var repo = <% - JSON.stringify(repos) %>.find(r => r.html_url === selectedRepo);
-
-                    $('#repoDetails').show();
-                    $('#repoName').text('Repository Name: ' + repo.name);
-                    $('#repoDescription').text('Description: ' + (repo.description || 'No description available'));
-                    $('#repoDate').text('Created at: ' + new Date(repo.created_at).toLocaleDateString());
-                } else {
-                    $('#repoDetails').hide();
-                }
-            });
-        });
-    </script>
-</body>
+  </body>

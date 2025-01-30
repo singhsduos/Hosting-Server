@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/assets/js/script.js"></script>
 </head>
 
 <body>
@@ -21,10 +25,90 @@
     <footer >
         <%- include('../partials/footer.ejs') %>
     </footer>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/assets/js/script.js"></script>
+    <script>
+        $(document).ready(function () {
+          const repos = <%- JSON.stringify(repos) %>;
+
+          const container = $(".selection");
+          const customSelect = $("#repoSelect");
+          const customOptionContainer = $("<div>").addClass("custom-select-container");
+          const branchSelect = $('#branchSelect');
+          const branchSelectContainer = $('#branchSelectContainer');
+          const repoDetails = $('#repoDetails');
+
+          // Sort repositories by creation date and create custom options
+          repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .forEach((repo) => {
+              const customOption = $("<div>")
+                .addClass("custom-select-item")
+                .text(`${repo.name} - ${repo.description || 'No description available'}`);
+
+              customOption.on("click", function () {
+                // Update repo details on selection
+                customSelect.text(repo.name);
+                customOptionContainer.removeClass("show");
+                customSelect.removeClass("option-active");
+
+                $("#repoName").text(`Repository Name: ${repo.name}`);
+                $("#repoDescription").text(`Description: ${repo.description || 'No description available'}`);
+                $("#repoDate").text(`Created at: ${new Date(repo.created_at).toLocaleDateString()}`);
+
+                // Fetch branches when repo is selected
+                $.get(`/fetch-branches?owner=${repo.owner.login}&repoName=${repo.name}`, function (branches) {
+                  branchSelectContainer.empty();
+                  branches.forEach((branch) => {
+                    const branchOption = $('<div>')
+                      .addClass('custom-select-item')
+                      .text(branch.name)
+                      .data('branch', branch);
+                    branchSelectContainer.append(branchOption);
+                  });
+                  branchSelect.show();
+                });
+              });
+
+              customOptionContainer.append(customOption);
+            });
+
+          // Toggle branch select visibility
+          branchSelect.on('click', function () {
+            $(this).toggleClass('active');
+            branchSelectContainer.toggle();
+          });
+
+          // Select branch from custom option
+          $(document).on('click', '.custom-select-item', function () {
+            const branch = $(this).data('branch');
+            branchSelect.text(branch.name);
+            branchSelectContainer.hide();
+            branchSelect.removeClass('active');
+          });
+
+          container.append(customOptionContainer);
+
+          // Toggle custom select dropdown
+          customSelect.on("click", function () {
+            customSelect.toggleClass("option-active");
+            customOptionContainer.toggleClass("show");
+            branchSelect.hide();
+          });
+
+          // Close dropdowns if clicked outside
+          $(document).on('click', function (e) {
+            if (!customSelect.is(e.target) && customSelect.has(e.target).length === 0) {
+              customOptionContainer.removeClass('show');
+              customSelect.removeClass('option-active');
+            }
+
+            if (!branchSelect.is(e.target) && branchSelect.has(e.target).length === 0) {
+              branchSelectContainer.hide();
+              branchSelect.removeClass('active');
+            }
+          });
+          
+        });
+      </script>
+
 </body>
 
 </html>

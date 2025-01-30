@@ -62,3 +62,83 @@ body {
     height: 100%;
     flex-direction: column;
 }
+
+.selection{
+    width: 100%;
+    display: contents;
+}
+
+  .custom-select {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    width: 50%;
+    height: 40px;
+    background: #151515;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 5px 5px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .custom-select:after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    width: 5px;
+    height: 5px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    z-index: 1;
+    transform: rotateZ(45deg);
+    transition: all 0.3s ease-in-out;
+  }
+
+  .custom-select.option-active:after {
+    transform: rotateZ(-135deg);
+    top: 17px;
+  }
+
+  .custom-select-container {
+    display: none;
+    width: 50%;
+    background: #151515;
+    color: #fff;
+    border-radius: 0 0 5px 5px;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .custom-select-container.show {
+    display: block;
+  }
+
+  .custom-select-item {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    border: 1px solid grey;
+  }
+
+  /* Hover effect for options */
+  .custom-select-item:hover {
+    background: #ff6347;
+  }
+
+  /* Repo details section */
+  .repo-details {
+    background-color: #2d2d2d;
+    padding: 15px;
+    color: white;
+    border-radius: 5px;
+    margin-top: 20px;
+  }
