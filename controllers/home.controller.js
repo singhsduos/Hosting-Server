@@ -15,7 +15,9 @@ class HomeController {
 
   async getHome(req, res) {
     try {
-      return res.render('pages/home/home');
+      const accessToken = req.session.passport.user.accessToken;
+      const repos = await this.homeService.fetchRepos(accessToken);
+      return res.render('pages/home/home', { repos });
     } catch (error) {
       res.status(500).json({ message: 'Error fetching home data' });
     }

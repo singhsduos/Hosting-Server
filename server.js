@@ -46,6 +46,8 @@ passport.use(
       callbackURL: `${config.frontBaseUrl}/auth/github/callback`,
     },
     (accessToken, refreshToken, profile, done) => {
+      profile.accessToken = accessToken;
+      profile.refreshToken = refreshToken;
       return done(null, profile);
     }
   )
@@ -59,7 +61,7 @@ passport.use(
       callbackURL: `${config.frontBaseUrl}/auth/gitlab/callback`,
     },
     (accessToken, refreshToken, profile, done) => {
-      return done(null, profile);
+      return done(null, accessToken, refreshToken, profile);
     }
   )
 );

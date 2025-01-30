@@ -1,57 +1,57 @@
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="#">AutoDeploy</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/auth/github">Login with GitHub</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <div class="container mt-4 text-center">
+        <h1>Welcome to Your Repositories</h1>
+        <p>Select a repository from the dropdown:</p>
 
-    <div class="container">
-        <div class="row mt-5">
-            <div class="col-md-12">
-                <h2 class="text-center mb-4">How It Works</h2>
-                <div class="row text-center">
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">1. Connect</h5>
-                                <p class="card-text">Login with GitHub and allow us to fetch your repositories.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">2. Select</h5>
-                                <p class="card-text">Choose the Node.js repository you want to deploy.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">3. Deploy</h5>
-                                <p class="card-text">Deploy your application in real-time and get a live URL.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <% if (repos && repos.length > 0) { %>
+        <div class="d-flex justify-content-center">
+            <select class="form-select form-select-lg mb-3" id="repoSelect" data-live-search="true"
+                title="Choose a repository" style="
+                width: 400px;
+                padding: 6px 10px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;">
+                <option value="">Select a repository</option>
+                <% repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach(repo => { %>
+                <option value="<%= repo.html_url %>">
+                    <%= repo.name %> - <%= repo.description || 'No description available' %>
+                </option>
+                <% }); %>
+            </select>
         </div>
+
+        <div id="repoDetails" class="repo-details mt-4">
+            <h4>Repository Details</h4>
+            <p id="repoName"></p>
+            <p id="repoDescription"></p>
+            <small id="repoDate"></small>
+        </div>
+        <% } else { %>
+        <div class="alert alert-info" role="alert">
+            You have no public repositories to display.
+        </div>
+        <% } %>
     </div>
-</body>
 
-</html>
+    <script>
+        $(document).ready(function () {
+            $('.selectpicker').selectpicker();
+
+            $('#repoSelect').on('change', function () {
+                var selectedRepo = $(this).val();
+
+                if (selectedRepo) {
+                    var repo = <% - JSON.stringify(repos) %>.find(r => r.html_url === selectedRepo);
+
+                    $('#repoDetails').show();
+                    $('#repoName').text('Repository Name: ' + repo.name);
+                    $('#repoDescription').text('Description: ' + (repo.description || 'No description available'));
+                    $('#repoDate').text('Created at: ' + new Date(repo.created_at).toLocaleDateString());
+                } else {
+                    $('#repoDetails').hide();
+                }
+            });
+        });
+    </script>
+</body>

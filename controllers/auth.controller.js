@@ -14,7 +14,7 @@ class AuthController {
 
   initializeRoutes() {
     this.router.get('/login', this.loginPage.bind(this));
-    this.router.get('/logout', this.logout.bind(this)); 
+    this.router.get('/logout', this.logout.bind(this));
     this.router.get('/github', passport.authenticate('github', { scope: ['profile', 'email'] }));
     this.router.get(
       '/github/callback',
@@ -38,7 +38,7 @@ class AuthController {
   }
 
   async logout(req, res) {
-    req.session.destroy(err => {
+    req.session.destroy((err) => {
       if (err) {
         console.error('Error destroying session:', err);
         return res.redirect('/');
