@@ -1,9 +1,14 @@
-const invalidPath = (req, res, next) => {
-  res.status(404).json({
-    success: false,
-    message: 'Invalid path',
+const indexPage =
+  ('/',
+  (req, res, next) => {
+    res.redirect('/');
   });
-};
+
+const invalidPath =
+  ('*',
+  (req, res, next) => {
+    res.redirect('/auth/login');
+  });
 
 const error = (err, req, res, next) => {
   const statusCode = err.statusCode || 500;
@@ -14,4 +19,4 @@ const error = (err, req, res, next) => {
   });
 };
 
-module.exports = { invalidPath, error };
+module.exports = { indexPage, invalidPath, error };

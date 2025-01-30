@@ -1,12 +1,10 @@
-const dotenv = require('dotenv');
+if (process.env.NODE_ENV === 'production') {
+  require('dotenv').config({ path: './.env.production' });
+} else {
+  require('dotenv').config({ path: './.env.development' });
+}
 require('express-async-errors');
 const config = require('./config/config');
-
-if (process.env.NODE_ENV === 'production') {
-  dotenv.config({ path: '.env.production' });
-} else {
-  dotenv.config({ path: '.env.development' });
-}
 
 const cookie = require('cookie-parser');
 const cors = require('cors');
@@ -28,10 +26,13 @@ global.ErrorHandler = ErrorHandler;
 const { initializeDatabase, closeDatabase } = require('./db');
 
 const AuthController = require('./controllers/auth.controller');
+const HomeController = require('./controllers/home.controller');
 
 const { accessHeaderMiddleware, getAllowedOrigins } = require('./middlewares/accessHeader');
-const { error, invalidPath } = require('./middlewares/error-handler');
+const checkAuth = require('./middlewares/auth.middleware');
+const { error, indexPage, invalidPath } = require('./middlewares/error-handler');
 
+global.checkAuth = checkAuth;
 const App = require('./app');
 
 passport.serializeUser((user, done) => done(null, user));
@@ -96,8 +97,8 @@ async function initializeApp() {
         passport.initialize(),
         passport.session(),
       ],
-      controllers: [new AuthController()],
-      errorHandlers: [invalidPath, error],
+      controllers: [new AuthController(), new HomeController()],
+      errorHandlers: [error, indexPage, invalidPath],
     });
 
     await app.listen();

@@ -98,15 +98,11 @@ class AuthService {
     return user;
   }
 
-  async authenticateUser(email, password) {
-    const user = await this.userModel.findOne({ email });
-    if (!user) {
-      throw new Error('Invalid credentials');
-    }
+  async authenticateUser(email, origin) {
+    const user = await this.userModel.findOne({ email, origin });
 
-    const isMatch = await this._comparePasswords(password, user.password);
-    if (!isMatch) {
-      throw new Error('Invalid credentials');
+    if (!user) {
+      return null;
     }
 
     return user;

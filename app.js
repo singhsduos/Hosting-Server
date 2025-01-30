@@ -34,6 +34,10 @@ class App {
     this.app.set('layout', 'layouts/layout');
     this.app.set('layout extractScripts', true);
     this.app.set('layout extractStyles', true);
+    this.app.use((req, res, next) => {
+      res.locals.TOKEN = req.session.token;
+      next();
+    });
   }
 
   routes(controllers) {
