@@ -46,7 +46,6 @@ class App {
     });
   }
 
-
   errorHandler(errorHandlers) {
     errorHandlers.forEach((handler) => {
       this.app.use(handler);

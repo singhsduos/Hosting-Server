@@ -26,6 +26,7 @@ global.ErrorHandler = ErrorHandler;
 const { initializeDatabase, closeDatabase } = require('./db');
 
 const AuthController = require('./controllers/auth.controller');
+const GitHubCloneController = require('./controllers/cloneGithub.controller');
 const HomeController = require('./controllers/home.controller');
 
 const { accessHeaderMiddleware, getAllowedOrigins } = require('./middlewares/accessHeader');
@@ -99,7 +100,7 @@ async function initializeApp() {
         passport.initialize(),
         passport.session(),
       ],
-      controllers: [new AuthController(), new HomeController()],
+      controllers: [new AuthController(), new GitHubCloneController(), new HomeController()],
       errorHandlers: [error, indexPage, invalidPath],
     });
 

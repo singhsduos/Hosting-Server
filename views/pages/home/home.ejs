@@ -7,7 +7,7 @@
         <div class="custom-select" id="repoSelect" style="margin: 20px 0px;">Select a repository</div>
         <div class="custom-select-container" id="repoSelectContainer"></div>
 
-        <div class="custom-select" id="branchSelect" style="display: none;">Select a branch</div>
+        <div class="custom-select" id="branchSelect" style="margin-bottom: 20px; display: none;">Select a branch</div>
         <div class="custom-select-container" id="branchSelectContainer" style="display: none;"></div>
       </div>
 
@@ -23,6 +23,8 @@
         You have no public repositories to display.
       </div>
       <% } %>
+     <button id="cloneButton" style="display: none;">Clone Repository</button>
+
     </div>
   
     <script>
@@ -34,6 +36,7 @@
             const branchSelect = $('#branchSelect');
             const branchSelectContainer = $('#branchSelectContainer');
             const repoDetails = $('#repoDetails');
+            const cloneButton = $('#cloneButton');
 
             // Sort repositories by creation date and create custom options
             repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -81,6 +84,7 @@
                 branchSelect.text(branch.name);
                 branchSelectContainer.hide();
                 branchSelect.removeClass('active');
+                $('#cloneButton').show();
             });
 
             container.append(customOptionContainer);
@@ -90,9 +94,9 @@
                 customSelect.toggleClass("option-active");
                 customOptionContainer.toggleClass("show");
                 branchSelect.hide();
+                cloneButton.hide();
             });
 
-            // Close dropdowns if clicked outside
             $(document).on('click', function (e) {
                 if (!customSelect.is(e.target) && customSelect.has(e.target).length === 0) {
                     customOptionContainer.removeClass('show');
@@ -103,6 +107,32 @@
                     branchSelectContainer.hide();
                     branchSelect.removeClass('active');
                 }
+            });
+
+            $('#cloneButton').on('click', function () {
+                const selectedRepo = repos.find(repo => repo.name === $('#repoSelect').text()); // Assuming repo name matches the selected text
+                const branchName = branchSelect.text();
+
+                $.ajax({
+                    url: '/github/clone',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ repoName: selectedRepo.name, branchName }),
+                    success: function (data) {
+                          Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Branch cloned successfully!',
+                        });
+                    },
+                    error: function (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'An error occurred while cloning the branch. Please try again.',
+                        });
+                    }
+                });
             });
 
         });
