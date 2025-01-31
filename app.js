@@ -32,8 +32,6 @@ class App {
     this.app.set('view engine', 'ejs');
     this.app.set('views', path.join(__dirname, 'views'));
     this.app.set('layout', 'layouts/layout');
-    this.app.set('layout extractScripts', true);
-    this.app.set('layout extractStyles', true);
     this.app.use((req, res, next) => {
       res.locals.TOKEN = req.session.token;
       next();
@@ -48,10 +46,6 @@ class App {
     });
   }
 
-  setLayout(req, res, next) {
-    req.app.set('layout', './layouts/layout');
-    next();
-  }
 
   errorHandler(errorHandlers) {
     errorHandlers.forEach((handler) => {
