@@ -19,10 +19,10 @@ class ModelFactory {
     const schema = ModelFactory._createSchema(modelName);
 
     switch (modelName.toLowerCase()) {
-      case 'user':
-        return dbType === 'mongodb' ? new MongoUserModel(schema) : new PostgresUserModel(schema);
-      default:
-        throw new Error(`Unsupported model: ${modelName}`);
+    case 'user':
+      return dbType === 'mongodb' ? new MongoUserModel(schema) : new PostgresUserModel(schema);
+    default:
+      throw new Error(`Unsupported model: ${modelName}`);
     }
   }
 
@@ -35,10 +35,10 @@ class ModelFactory {
    */
   static _createSchema(modelName) {
     switch (modelName.toLowerCase()) {
-      case 'user':
-        return new UserSchema();
-      default:
-        throw new Error(`Unsupported model: ${modelName}`);
+    case 'user':
+      return new UserSchema();
+    default:
+      throw new Error(`Unsupported model: ${modelName}`);
     }
   }
 }
