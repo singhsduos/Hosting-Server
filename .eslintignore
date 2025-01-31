@@ -6,3 +6,4 @@ coverage/
 *.min.js
 public/
 logs/
+temp/
