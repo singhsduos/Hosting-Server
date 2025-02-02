@@ -35,6 +35,16 @@ class RepoSchema extends Schema {
         type: FieldType.DATE,
         default: Date.now,
       },
+      commandToRun: {
+        type: FieldType.STRING,
+      },
+      logsFileName: {
+        type: FieldType.STRING,
+      },
+      isDeleted: {
+        type: FieldType.BOOLEAN,
+        default: false
+      },
       createdAt: {
         type: FieldType.DATE,
         default: Date.now,
